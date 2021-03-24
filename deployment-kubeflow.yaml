@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+  namespace: spark1
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark-sa
+  namespace: spark1
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark-notebook-rb
+  namespace: spark1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- kind: ServiceAccount
+  name: spark
+  namespace: spark1
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark-sa-rb
+  namespace: spark1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+- kind: ServiceAccount
+  name: spark-sa
+  namespace: spark1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-notebook
+  namespace: spark1
+  labels: &default-labels
+    notebook-name: jupyter
+spec:
+  replicas: 1
+  selector:
+    matchLabels: *default-labels
+  template:
+    metadata:
+      labels: *default-labels
+    spec:
+      hostname: spark-notebook
+      serviceAccountName: spark 
+      containers:
+      - name: spark-notebook
+        image: docker.io/anantpukale/pyspark-notebook:v1
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyter
+  namespace: spark1
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: notebook
+    port: 8888
+    protocol: TCP
+    targetPort: 8888
+  - name: sparkui
+    port: 4040
+    protocol: TCP
+    targetPort: 4040
+  selector:
+    notebook-name: jupyter
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: 40.70.161.40
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    notebook-name: jupyter
+  name: spark-notebook
+  namespace: spark1
+spec:
+  clusterIP: None
+  ports:
+  - name: driver-port 
+    port: 29413
+    protocol: TCP
+    targetPort: 29413
+  selector:
+    notebook-name: jupyter
+  sessionAffinity: None
+  type: ClusterIP

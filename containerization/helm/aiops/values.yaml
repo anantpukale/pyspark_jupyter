@@ -1,0 +1,56 @@
+
+namespace: gladiators
+
+ServiceAccount:
+  name: spark
+
+scope: gladiators
+
+Role:
+  name: spark-role
+
+RoleBinding:
+  name: spark-role-bind
+
+PersistentVolumeClaim:
+  enabled: True
+  name: aiops-spark-pvc1
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 10Gi
+
+Harbor:
+  enable: True
+  imagePullSecrets: service-intel-harbor
+
+Deployment:
+  metadata: 
+    name: spark-notebook
+    labels:
+      notebookname: jupyter
+  spec:
+    replica: 1
+    hostname: spark-notebook
+    container:
+      name: spark-notebook
+      image: ustr-harbor-1.na.uis.unisys.com/service-intelligence/jupyter-pyspark:3.1.2.v31
+      command: jupyter notebook --notebook-dir=/home/jovyan/ --ip=0.0.0.0 --no-browser --allow-root --port=30503 --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=${NB_PREFIX} --NotebookApp.allow_password_change=True --certfile=/home/jovyan/aiops-mlcluster.cf.unisys-1.com_Oct25-2021.crt --keyfile /home/jovyan/aiops-mlcluster.cf.unisys.com_Oct25-2021.key 
+      imagePullPolicy: Always
+      SCOPE: uat
+      resources:
+        limits:
+          cpu: 1.5
+          memory: '10Gi'
+        requests:
+          cpu: 1
+          memory: '10Gi'
+
+Service:
+  metadata:
+    name: jupyter
+  spec:
+    ports:
+      notebook:
+        nodePort: 30506
+

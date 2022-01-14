@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    field.cattle.io/containerDefaultResourceLimit: '{"limit":{"limitsCpu":"500m","limitsMemory":"1024Mi"}}'
+    field.cattle.io/projectId: c-gkz6s:p-76bws
+    field.cattle.io/resourceQuota: '{"limit":{"limitsCpu":"4000m","limitsMemory":"11720Mi"}}'
+    lifecycle.cattle.io/create.namespace-auth: "true"
+  finalizers:
+  - controller.cattle.io/namespace-auth
+  labels:
+    cattle.io/creator: norman
+    field.cattle.io/projectId: p-76bws
+  name: gladiators
+spec:
+  finalizers:
+  - kubernetes

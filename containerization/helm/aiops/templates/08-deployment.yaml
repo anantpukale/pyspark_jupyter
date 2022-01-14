@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.Deployment.metadata.name }}-{{ .Values.scope }}
+  namespace: {{ .Values.namespace }}
+  labels: &default-labels
+    notebook-name: {{ .Values.Deployment.metadata.labels.notebookname }}-{{ .Values.scope }}
+spec:
+  replicas: {{ .Values.Deployment.spec.replica }}
+  selector:
+    matchLabels: *default-labels
+  template:
+    metadata:
+      labels: *default-labels
+    spec:
+      hostname: {{ .Values.Deployment.spec.hostname }}-{{ .Values.scope }}
+      serviceAccountName: {{ .Values.ServiceAccount.name }}-{{ .Values.scope }}
+      imagePullSecrets:
+      - name: {{ .Values.Harbor.imagePullSecrets }}
+      containers:
+      - name: {{ .Values.Deployment.spec.container.name }}
+        image: {{ .Values.Deployment.spec.container.image }}
+        command: ["sh","-c", "{{ .Values.Deployment.spec.container.command }}"]
+        imagePullPolicy: {{ .Values.Deployment.spec.container.imagePullPolicy}}
+        env:
+        - name: NameSpace
+          value: {{ .Values.namespace }}
+        - name: SCOPE
+          value: {{ .Values.Deployment.spec.container.SCOPE}}
+        volumeMounts:
+        - name: spark-data
+          mountPath: /home/jovyan/work
+        resources:
+          limits:
+            cpu: {{ .Values.Deployment.spec.container.resources.limits.cpu }}
+            memory: {{ .Values.Deployment.spec.container.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.Deployment.spec.container.resources.requests.cpu }}
+            memory: {{ .Values.Deployment.spec.container.resources.requests.memory }}
+      volumes:
+      - name: spark-data
+        persistentVolumeClaim:
+          claimName: {{ .Values.PersistentVolumeClaim.name }}

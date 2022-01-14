@@ -1,0 +1,154 @@
+webserverSecretKey: 3e6d914e8d3c9ce25acdf17f7b6a5b93
+
+flower:
+  enabled: false
+
+statsd:
+  enabled: false
+
+workers:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 2Gi
+
+  logGroomerSidecar:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+
+scheduler:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 2Gi
+  logGroomerSidecar:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+
+webserver:
+  resources:
+     limits:
+       cpu: 500m
+       memory: 2Gi
+     requests:
+       cpu: 500m
+       memory: 2Gi
+  extraVolumes:
+    - name: cert
+      configMap:
+        name: airflow-airflow-variables
+        defaultMode: 0777
+  extraVolumeMounts:
+    - name: cert
+      mountPath: /opt/airflow/cert
+  service:
+    type: NodePort
+
+dags:
+  persistence:
+    enabled: true
+    # Volume size for dags
+    size: 1Gi
+    # If using a custom storageClass, pass name here
+    storageClassName: nfs-client
+    # access mode of the persistent volume
+    accessMode: ReadWriteOnce
+
+config:
+  webserver:
+    web_server_ssl_cert: '/opt/airflow/cert/aiops-mlcluster.cf.unisys-1.com_Oct25-2021.crt'
+    web_server_ssl_key: '/opt/airflow/cert/aiops-mlcluster.cf.unisys.com_Oct25-2021.key'
+
+extraConfigMaps:
+    '{{ .Release.Name }}-airflow-variables':
+      data: |
+        aiops-mlcluster.cf.unisys-1.com_Oct25-2021.crt: |
+          -----BEGIN CERTIFICATE-----
+          MIIG/zCCBeegAwIBAgIQcttZ60Cm0cpWUTaTx/wt9TANBgkqhkiG9w0BAQsFADCB
+          ujELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUVudHJ1c3QsIEluYy4xKDAmBgNVBAsT
+          H1NlZSB3d3cuZW50cnVzdC5uZXQvbGVnYWwtdGVybXMxOTA3BgNVBAsTMChjKSAy
+          MDEyIEVudHJ1c3QsIEluYy4gLSBmb3IgYXV0aG9yaXplZCB1c2Ugb25seTEuMCwG
+          A1UEAxMlRW50cnVzdCBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEwxSzAeFw0y
+          MTEwMjUxNTEyMjBaFw0yMjExMjQxNTEyMjBaMH0xCzAJBgNVBAYTAlVTMRUwEwYD
+          VQQIEwxQZW5uc3lsdmFuaWExEjAQBgNVBAcTCUJsdWUgQmVsbDEbMBkGA1UEChMS
+          VW5pc3lzIENvcnBvcmF0aW9uMSYwJAYDVQQDEx1haW9wcy1tbGNsdXN0ZXIuY2Yu
+          dW5pc3lzLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAL3kj/fE
+          bgLr/sKWKKOKUZFR+6mCB1t/LB8i8oQNWuWBwF37cwaEob4qphyJJooByBhJqyFS
+          YwwhIggw4EYBvSQOrtjZ+8YzFDixUKhSLTqPw0Fy8HLGkgz/vwAkIulLq4dDRGKu
+          y9DIvJjg4RWSG8TQ7jsJkf2Tg9GOCeqU1Us460gW2Ad5jqaOcqTZAo6akGDgqSV2
+          p2D0zJIRdH34IV0Fi9ukq8qoxTjQ8gZOmRAsHZTdzpQwdfh+7zMqL4fyYOy6C1S7
+          9eDBAXlCJszBtEiyL2aXVFZbvL6MM8uqcQ3TvVytnmKRICtUvl2rNC8Q1wIURvGj
+          AJU/v+z0i6ORtwkCAwEAAaOCAzswggM3MAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYE
+          FBTe8I46aDMnPn0VVWjTOM9dD3FiMB8GA1UdIwQYMBaAFIKicHTdvFM/z3vU981/
+          p2DGCky/MGgGCCsGAQUFBwEBBFwwWjAjBggrBgEFBQcwAYYXaHR0cDovL29jc3Au
+          ZW50cnVzdC5uZXQwMwYIKwYBBQUHMAKGJ2h0dHA6Ly9haWEuZW50cnVzdC5uZXQv
+          bDFrLWNoYWluMjU2LmNlcjAzBgNVHR8ELDAqMCigJqAkhiJodHRwOi8vY3JsLmVu
+          dHJ1c3QubmV0L2xldmVsMWsuY3JsMEgGA1UdEQRBMD+CHWFpb3BzLW1sY2x1c3Rl
+          ci5jZi51bmlzeXMuY29tgh5haW9wcy1tbGNsdXN0ZXItVUFULnVuaXN5cy5jb20w
+          DgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjBM
+          BgNVHSAERTBDMDcGCmCGSAGG+mwKAQUwKTAnBggrBgEFBQcCARYbaHR0cHM6Ly93
+          d3cuZW50cnVzdC5uZXQvcnBhMAgGBmeBDAECAjCCAX8GCisGAQQB1nkCBAIEggFv
+          BIIBawFpAHcAVhQGmi/XwuzT9eG9RLI+x0Z2ubyZEVzA75SYVdaJ0N0AAAF8uAJ3
+          4wAABAMASDBGAiEAm6QrBI22rvEe85cmwdhTg5SR3kVXPisJ6DnU97Gls5gCIQDJ
+          RllhIfXurk1dlFaMWuIS4IBd0ng9hGEWRdfM9GIGOwB2AN+lXqtogk8fbK3uuF9O
+          PlrqzaISpGpejjsSwCBEXCpzAAABfLgCd9kAAAQDAEcwRQIgIRhPWWbmwOKJiYgW
+          1T0a8LIuKZczoVQuUR3fmYvHqRACIQDsc5ZVDx1hCzLIQpdFBgj8T0qbRXQVRjjd
+          ZpGEkthlZgB2AEalVet1+pEgMLWiiWn0830RLEF0vv1JuIWr8vxw/m1HAAABfLgC
+          eZkAAAQDAEcwRQIhAOWv01U86aSqATHxA8Oog+anNDZdxtwpvxstFnM1bePBAiBs
+          Rbhznx8TCf4PKQk2NjqCiMt+asUhPCXOJfFrqq/L6jANBgkqhkiG9w0BAQsFAAOC
+          AQEAyHpe1rxku0CvggCLGTBsIS3BGUoMx5ZCv1Gmj04H6tUI1YGbQDjm7V67O8nT
+          GlwEX7Z8GR2MrhifRoEcDCmQux6kG69M4RCp6oOx5yehpNm4xJTsCNINxuycODfE
+          ZisL37CFwFd7WFYegKgtoDljMiD4XTNThEd4Wh7B4dPQw0RHTlOJ2q0UJFa2cxi2
+          5MOt40gHYOBtZRpbcFEbVukUSM1UjxTWxDPCOjZL/7eFg4BhxeyK9b5RNANY39xR
+          nbR+kZfulUl1lqXv9zo1cJIQiXL4afnFoEyGsRGaxs6ViQM2eugTU9jhyu7hnQek
+          XIIsylIpifBlOXylDA0dhqJ0vg==
+          -----END CERTIFICATE-----
+        aiops-mlcluster.cf.unisys.com_Oct25-2021.key: |
+          -----BEGIN PRIVATE KEY-----
+          MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC95I/3xG4C6/7C
+          liijilGRUfupggdbfywfIvKEDVrlgcBd+3MGhKG+KqYciSaKAcgYSashUmMMISII
+          MOBGAb0kDq7Y2fvGMxQ4sVCoUi06j8NBcvByxpIM/78AJCLpS6uHQ0RirsvQyLyY
+          4OEVkhvE0O47CZH9k4PRjgnqlNVLOOtIFtgHeY6mjnKk2QKOmpBg4Kkldqdg9MyS
+          EXR9+CFdBYvbpKvKqMU40PIGTpkQLB2U3c6UMHX4fu8zKi+H8mDsugtUu/XgwQF5
+          QibMwbRIsi9ml1RWW7y+jDPLqnEN071crZ5ikSArVL5dqzQvENcCFEbxowCVP7/s
+          9IujkbcJAgMBAAECggEAVToOO5/X2EvfLaqDVtMvxM9M6klH0BMF1Hu06PutfjB8
+          DDJc7+H7TgSKRWhw+aPPEMePnQcDGWCNi6uUHReOsm48n2tGizBFtSQwFTu8vPnl
+          IqzZqknhJyBps0CEwryJoc3ZFYlqRKyzqNHVc/79o5o6MhkbgvoAQb9ESBrAmF+P
+          bzmbDSOSFkfxf2reGbttBVB6Lv5wbBxGSxUn1HYQsIRONLmeaW6WvLKRJmc/lRZs
+          rnKeR3zX/b8D5G80heEqe8tim2i/bjc2A03buR3GQtTG1EvYpGUJKGFTRI3iObqa
+          sAb9kB6a77MoJrYCJCu3ogN81QtrJN/JQNAkkgT3GQKBgQDmV8g2oGu/p63Krb2Q
+          psolOi4K286jOg5iYlWa+aK1K1zBmOGcOb6+tQ4aiy75YIU2HS02XI4Ku+gEYmkB
+          GZcbB/fomh2TKj/NVQGpKB2v3AITTjewwxybAP9wbFz7nTxsZKs9+AssGwuK6dwm
+          y3bNjBkQwWce/TBJa8QYDQr+awKBgQDTC1kbXVpesGP9zZtEMLwdpnMfhP2BZ9ab
+          I77RencK1VfTSS/Bb43j84SdOtHeRxKVeXitkwtnMXU4l+CgfNL+NFw3UG0ZmLLq
+          R9UQtCMS9DCb2dNVPjfBWOrrQIR965RWC8k77At8+1y//rrnxYzhFGg46qhA6RAf
+          jZaMCv+VWwKBgQDlbPGiV0566oyTn1F8zmPxiG1rq1u6AI1rOP6DCboiMTqGKbwt
+          Wua+FKAjmBYFlTmZmJ3701w3HMoP8+Uaj16OMfWe3EIw3pgF8HFjBu3qx3vZtsKJ
+          cQ0A5pGGbKiAhTA11l8prfGS0K1Cg4Qfr/B48t3Ubo5Ds3Nw7cG3IuacWQKBgQDN
+          vz574yL7NVQGV7CLZke/UErj66+JvUYHsW2So6XytdMNdUhNeQgHt50N/A4meXuw
+          pd/0uGphjGIPbmHblFXO5hURCCOU1L14kdcylausCsxo5I+XhzSsFpfQCfIhIM5Y
+          pNzmwlTg392ogBqPYpTZyh9hfcPSpGTHni2rEf3iCQKBgQC6UukG59yRUFPtIa0w
+          BSbdbki8OhJKvl9zEkt+Klb8yTPJYPozK6SOeiFREvAviYi2Rd7TTVI69dRBHP2s
+          eo73J90cjx6c1XmAg7ALtrjT9/+FiSaApp+RNP1b3iPql4V6u4Vm1p0T7gpqNESE
+          CwdiHegPMtqUdbG26MenIUuOFQ==
+          -----END PRIVATE KEY-----       
+
+logs:
+  persistence:
+    enabled: true

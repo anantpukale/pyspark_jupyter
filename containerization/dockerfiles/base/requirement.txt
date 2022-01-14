@@ -1,0 +1,16 @@
+findspark
+azure-storage-blob==0.37.1
+azure.keyvault
+azure.identity
+ipython-sql
+scipy
+pyarrow
+scikit-learn
+nltk
+azure-keyvault-secrets
+adal
+kafka-python==2.0.2
+avro-python3
+kfp
+gensim
+pandas==1.3.4
